@@ -15,11 +15,16 @@ try
 }
 catch (Exception ex) when (ex is FormatException or ArgumentNullException or OverflowException)
 {
-    Console.WriteLine($"Hibás kascsaerő input: ${minDuckPowerInput} hiba: ${ex.Message}");
+    Console.WriteLine($"Hibás kacsaerő input: ${minDuckPowerInput} hiba: ${ex.Message}");
     return;
 }
 
 var heroes = new List<Hero>();
+if (Path.Exists(fileName) is false)
+{
+    Console.WriteLine($"a file elérési útvonala rossz: ${fileName}");
+}
+
 using (var file = File.OpenRead(fileName))
 {
     using (var reader = new StreamReader(file))
@@ -34,7 +39,7 @@ using (var file = File.OpenRead(fileName))
                     Console.Error.WriteLine($"Hibás adat, a sorban több/kevesebb érték van a szükségesnél: ${line}");
                     return;
                 }
-                heroes.Add(Parse(values));
+                heroes.Add(Hero.BuildFromFileLine(values));
             }
         }
         catch (IOException ex)
@@ -57,14 +62,3 @@ var result =  JsonSerializer.Serialize(sortedHeroes, new JsonSerializerOptions()
 });
 
 Console.WriteLine(result);
-
-static Hero Parse(string[] values)
-{
-    return new Hero
-    {
-        HeroName = values[0],
-        RealName = values[1],
-        SuperPower = values[2],
-        DuckStrength = int.Parse(values[3])
-    };
-}
